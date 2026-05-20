@@ -1,0 +1,43 @@
+# Python
+.venv-claude/
+__pycache__/
+*.pyc
+*.pyo
+
+# 证书和密钥（提交到内部 git 可以放开这行注释）
+# private/
+# csr/
+# certs/
+
+# 外部依赖
+ngrok.exe
+acps_ca_client-*.whl
+*.tar.gz
+*.zip
+
+# 克隆的参考仓库
+ACPs-CA-Challenge/
+ACPs-Demo-Project/
+
+# 提取工具
+script/
+
+# 临时文件
+_agent_create.json
+_openapi_*.json
+_extract_*.py
+_test_*.jpg
+Snipaste_*.png
+bore.tar.gz
+
+# 课件（太大）
+references/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

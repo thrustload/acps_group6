@@ -1,0 +1,112 @@
+{
+  "aic": "1.2.156.3088.0001.00001.ZDEPKT.696GQR.1.05FY",
+  "lastModifiedTime": "2026-05-20T20:00:00+08:00",
+  "active": true,
+  "protocolVersion": "02.00",
+  "name": "快递小助手",
+  "description": "校园快递查询智能体（Partner）。职责：根据用户提供的快递单号和可选快递公司编码查询物流状态，并结合大学校园取件场景给出是否可取、预计到达、取件注意事项等建议。能力：支持识别用户自然语言中的快递单号，查询物流状态，返回最新物流轨迹、当前运输状态、快递公司信息和校园取件建议。范围：适用于学生在校园内查询个人快递、判断是否可以前往快递站取件、规划取件时间。明确拒绝：不处理寄件下单、运费支付、退款理赔、投诉工单、危险品寄递、非用户本人授权的物流隐私查询。限制：真实物流数据依赖快递物流查询插件",
+  "version": "1.0.0",
+  "iconUrl": "",
+  "documentationUrl": "",
+  "webAppUrl": "",
+  "provider": {
+    "countryCode": "CN",
+    "organization": "北京邮电大学",
+    "department": "人工智能学院",
+    "url": "https://ai.bupt.edu.cn",
+    "license": "",
+    "name": "第6组",
+    "email": "2023213534@bupt.cn"
+  },
+  "securitySchemes": {
+    "mtls": {
+      "type": "mutualTLS",
+      "description": "智能体间 mTLS 双向认证",
+      "x-caChallengeBaseUrl": "http://0.0.0.0:8004/acps-atr-v2"
+    }
+  },
+  "endPoints": [
+    {
+      "url": "http://10.129.71.137:8089",
+      "transport": "JSONRPC",
+      "security": [
+        {
+          "mtls": []
+        }
+      ]
+    }
+  ],
+  "capabilities": {
+    "streaming": false,
+    "notification": false,
+    "messageQueue": []
+  },
+  "defaultInputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "campus-express.queryStatus",
+      "name": "物流查询",
+      "description": "根据快递单号和可选快递公司编码查询物流状态，返回当前状态、最新轨迹、历史轨迹和校园取件建议。",
+      "version": "1.0.0",
+      "tags": [
+        "快递",
+        "物流",
+        "取件",
+        "单号查询",
+        "校园生活"
+      ],
+      "examples": [
+        "帮我查一下 SF123456789 到哪了",
+        "这个快递什么时候能到学校",
+        "我下午能去取快递吗",
+        "查一下中通快递 753xxxxxxx"
+      ],
+      "inputModes": [
+        "text/plain",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    },
+    {
+      "id": "campus-express.pickupAdvice",
+      "name": "校园取件建议",
+      "description": "结合物流状态和校园生活场景，判断是否适合现在去取件，并给出取件时间、地点和注意事项建议。",
+      "version": "1.0.0",
+      "tags": [
+        "取件建议",
+        "校园快递站",
+        "菜鸟驿站",
+        "时间安排"
+      ],
+      "examples": [
+        "现在适合去取快递吗",
+        "下午下课后能不能顺便取快递"
+      ],
+      "inputModes": [
+        "text/plain",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    }
+  ],
+  "entityUserId": "",
+  "entityMeta": {
+    "type": "campus-service",
+    "campus": "北京邮电大学",
+    "role": "partner",
+    "domain": "express"
+  }
+}
