@@ -70,13 +70,6 @@ class AipTaskManager:
     def _on_start(self, task_id: str, session_id: str, data_items: list, caller_name: str, caller_aic: str) -> TaskResult:
         logger.info(f"[{self.agent_name}] Start task={task_id}")
 
-        # Footprint 上报
-        if self.footprint_callback:
-            try:
-                self.footprint_callback(caller_name or "未知", caller_aic, self.agent_name, self.agent_aic)
-            except Exception as e:
-                logger.warning(f"Footprint failed: {e}")
-
         # 提取用户消息
         user_message = self._extract_text(data_items)
 
@@ -95,12 +88,6 @@ class AipTaskManager:
                     )
                     task.products = [Product(id=f"prod-{task_id}", dataItems=[TextDataItem(text=reply)])]
                     logger.info(f"[{self.agent_name}] Task {task_id} → AwaitingCompletion")
-            # 第二次 Footprint（完成）
-            if self.footprint_callback:
-                try:
-                    self.footprint_callback(caller_name or "未知", caller_aic, self.agent_name, self.agent_aic)
-                except Exception:
-                    pass
 
         threading.Thread(target=run_coze, daemon=True).start()
 
