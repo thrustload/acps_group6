@@ -1,6 +1,7 @@
 """AIP 协议 RPC 服务端 — 任务生命周期管理 + Coze 集成"""
 import json
 import logging
+import ssl
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
@@ -220,9 +221,22 @@ class AipHttpHandler(BaseHTTPRequestHandler):
         pass
 
 
-def create_aip_server(agent_name: str, agent_aic: str, coze_client, footprint_callback=None, port: int = 8088):
-    """创建 AIP 服务实例"""
+def create_aip_server(agent_name: str, agent_aic: str, coze_client,
+                      footprint_callback=None, port: int = 8088,
+                      cert_path: str = "", key_path: str = "", ca_bundle_path: str = ""):
+    """创建 AIP 服务实例
+    当提供 cert_path/key_path 时启用 HTTPS + mTLS。
+    """
     manager = AipTaskManager(agent_name, agent_aic, coze_client, footprint_callback)
     handler = type("Handler", (AipHttpHandler,), {"task_manager": manager})
     server = HTTPServer(("0.0.0.0", port), handler)
+
+    if cert_path and key_path:
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ctx.load_cert_chain(cert_path, key_path)
+        if ca_bundle_path:
+            ctx.load_verify_locations(cafile=ca_bundle_path)
+            ctx.verify_mode = ssl.CERT_REQUIRED
+        server.socket = ctx.wrap_socket(server.socket, server_side=True)
+
     return server

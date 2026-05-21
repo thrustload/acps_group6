@@ -7,10 +7,11 @@ from coze_client import CozeAgent
 from aip_server import create_aip_server
 
 AGENT_NAME = "天气穿搭管家"
-AGENT_AIC = "1.2.156.3088.0001.00001.7DRAS3.51UTCT.1.12PU"
+AGENT_AIC = "1.2.156.3088.0001.00001.624O0Z.DJA3AQ.1.00OV"
 COZE_BOT_ID = "7641593088385138703"
-COZE_TOKEN = "TO_BE_FILLED"
+COZE_TOKEN = "cztei_l9Rol4fVm6jR7rTdfaRLp6tu2VfnyNM6Gjc71s8Cc46xme0j4IkiTnrWn3xMSPWfI"
 DISPLAY_URL = "http://117.74.66.90:8006/notify"
+CERT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ca")
 
 coze = CozeAgent(bot_id=COZE_BOT_ID, token=COZE_TOKEN)
 
@@ -22,10 +23,16 @@ def report_footprint(src_name, src_aic, dst_name, dst_aic):
         pass
 
 
-server = create_aip_server(AGENT_NAME, AGENT_AIC, coze, report_footprint, port=8090)
+server = create_aip_server(AGENT_NAME, AGENT_AIC, coze, report_footprint,
+    port=8090,
+    cert_path=os.path.join(CERT_DIR, "certs", f"{AGENT_AIC}.pem"),
+    key_path=os.path.join(CERT_DIR, "private", f"{AGENT_AIC}.key"),
+    ca_bundle_path=os.path.join(CERT_DIR, "certs", "trust-bundle.pem"),
+)
 
 if __name__ == "__main__":
-    print(f"[{AGENT_NAME}] AIP Server http://0.0.0.0:8090")
+    proto = "https" if os.path.exists(os.path.join(CERT_DIR, "certs", f"{AGENT_AIC}.pem")) else "http"
+    print(f"[{AGENT_NAME}] AIP Server {proto}://0.0.0.0:{8090}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

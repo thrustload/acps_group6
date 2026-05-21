@@ -1,15 +1,52 @@
 """Leader Bridge — Coze 插件 ↔ ADP 发现 + 动态路由 Partner"""
 import json
+import os
+import ssl
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.poolmanager import PoolManager
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 import uuid
 import time
 from urllib.parse import unquote
 
-LEADER_AIC = "1.2.156.3088.0001.00001.A53M96.AXQY6W.1.1AZ7"
+LEADER_AIC = "1.2.156.3088.0001.00001.B08ERU.S4IY32.1.002I"
 DISCOVERY_URL = "http://117.74.66.90:8005/acps-adp-v2/discover"
 FOOTPRINT_URL = "http://117.74.66.90:8006/notify"
+
+_CERT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ca")
+_MTLS_CERT = (os.path.join(_CERT_DIR, "certs", f"{LEADER_AIC}.pem"),
+              os.path.join(_CERT_DIR, "private", f"{LEADER_AIC}.key"))
+_MTLS_VERIFY = os.path.join(_CERT_DIR, "certs", "trust-bundle.pem")
+
+# ── mTLS Session（HTTPS 请求用，自带客户端证书 + CA 验证，跳过主机名检查）──
+_MTLS_SESSION = None
+
+def _mtls_session():
+    global _MTLS_SESSION
+    if _MTLS_SESSION is None:
+        ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+        ctx.load_cert_chain(_MTLS_CERT[0], _MTLS_CERT[1])
+        ctx.load_verify_locations(cafile=_MTLS_VERIFY)
+        ctx.check_hostname = False
+
+        class _MtlsAdapter(HTTPAdapter):
+            def init_poolmanager(self, *args, **kwargs):
+                kwargs["ssl_context"] = ctx
+                kwargs["assert_hostname"] = False
+                return super().init_poolmanager(*args, **kwargs)
+
+        s = requests.Session()
+        s.mount("https://", _MtlsAdapter())
+        _MTLS_SESSION = s
+    return _MTLS_SESSION
+
+def _post(url, json, timeout=30):
+    """发送 POST：HTTPS 走 mTLS Session，HTTP 明文"""
+    if url.startswith("https://"):
+        return _mtls_session().post(url, json=json, timeout=timeout)
+    return requests.post(url, json=json, timeout=timeout)
 
 def _aip_request(agent_url: str, message: str, session_id: str, caller_name: str, caller_aic: str) -> dict:
     """用 AIP JSON-RPC 格式调 Partner，轮询等结果"""
@@ -29,7 +66,7 @@ def _aip_request(agent_url: str, message: str, session_id: str, caller_name: str
             },
         },
     }
-    resp = requests.post(agent_url, json=req, timeout=30)
+    resp = _post(agent_url, req)
     result = resp.json().get("result", {})
 
     # 轮询等 Coze 异步返回
@@ -49,25 +86,25 @@ def _aip_request(agent_url: str, message: str, session_id: str, caller_name: str
                 },
             },
         }
-        poll_resp = requests.post(agent_url, json=poll_req, timeout=10)
+        poll_resp = _post(agent_url, poll_req, 10)
         result = poll_resp.json().get("result", result)
 
     # 发送 Complete
-    requests.post(agent_url, json={
+    _post(agent_url, {
         "jsonrpc": "2.0",
         "id": f"complete-{task_id}",
         "method": "task/execute",
         "params": {"command": {"taskId": task_id, "command": "complete"}},
-    }, timeout=10)
+    }, 10)
 
     return result
 
 # 本地默认兜底地址（ADP 返回了就用 ADP 的）
 PARTNERS = {
-    "北邮校园外卖小助手": "http://127.0.0.1:8088",
-    "快递小助手": "http://127.0.0.1:8089",
-    "天气穿搭管家": "http://127.0.0.1:8090",
-    "约会规划师": "http://127.0.0.1:8091",
+    "北邮校园外卖小助手": "https://127.0.0.1:8088",
+    "快递小助手": "https://127.0.0.1:8089",
+    "天气穿搭管家": "https://127.0.0.1:8090",
+    "约会规划师": "https://127.0.0.1:8091",
 }
 
 # ADP 搜索结果缓存: {agent_name: {"aic": ..., "endpoint": ..., "acs": {...}}}
