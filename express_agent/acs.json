@@ -22,12 +22,12 @@
     "mtls": {
       "type": "mutualTLS",
       "description": "智能体间 mTLS 双向认证",
-      "x-caChallengeBaseUrl": "https://myung-elytroid-patrica.ngrok-free.dev/acps-atr-v2"
+      "x-caChallengeBaseUrl": "https://hesitancy-harddisk-tribesman.ngrok-free.dev/acps-atr-v2"
     }
   },
   "endPoints": [
     {
-      "url": "https://myung-elytroid-patrica.ngrok-free.dev/partner/快递小助手",
+      "url": "https://hesitancy-harddisk-tribesman.ngrok-free.dev/partner/快递小助手",
       "transport": "JSONRPC",
       "security": [
         {

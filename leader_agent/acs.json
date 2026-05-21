@@ -22,7 +22,7 @@
     "mtls": {
       "type": "mutualTLS",
       "description": "智能体间 mTLS 双向认证",
-      "x-caChallengeBaseUrl": "https://myung-elytroid-patrica.ngrok-free.dev/acps-atr-v2"
+      "x-caChallengeBaseUrl": "https://hesitancy-harddisk-tribesman.ngrok-free.dev/acps-atr-v2"
     }
   },
   "endPoints": [],
