@@ -27,7 +27,7 @@
   },
   "endPoints": [
     {
-      "url": "http://10.129.71.137:8091",
+      "url": "https://myung-elytroid-patrica.ngrok-free.dev/partner/约会规划师",
       "transport": "JSONRPC",
       "security": [
         {

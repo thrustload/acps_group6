@@ -27,7 +27,7 @@
   },
   "endPoints": [
     {
-      "url": "http://10.129.71.137:8088",
+      "url": "https://myung-elytroid-patrica.ngrok-free.dev/partner/北邮校园外卖小助手",
       "transport": "JSONRPC",
       "security": [
         {
