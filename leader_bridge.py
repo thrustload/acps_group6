@@ -3,9 +3,63 @@ import json
 import requests
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+import uuid
+import time
+
 LEADER_AIC = "1.2.156.3088.0001.00001.A53M96.AXQY6W.1.1AZ7"
 DISCOVERY_URL = "http://117.74.66.90:8005/acps-adp-v2/discover"
 FOOTPRINT_URL = "http://117.74.66.90:8006/notify"
+
+def _aip_request(agent_url: str, message: str, session_id: str, caller_name: str, caller_aic: str) -> dict:
+    """用 AIP JSON-RPC 格式调 Partner，轮询等结果"""
+    task_id = f"task-{uuid.uuid4().hex[:8]}"
+    req = {
+        "jsonrpc": "2.0",
+        "id": f"req-{task_id}",
+        "method": "task/execute",
+        "params": {
+            "caller_name": caller_name,
+            "caller_aic": caller_aic,
+            "command": {
+                "taskId": task_id,
+                "sessionId": session_id,
+                "command": "start",
+                "dataItems": [{"text": message}],
+            },
+        },
+    }
+    resp = requests.post(agent_url, json=req, timeout=30)
+    result = resp.json().get("result", {})
+
+    # 轮询等 Coze 异步返回
+    for _ in range(15):
+        state = result.get("status", {}).get("state", "")
+        if state in ("awaiting_completion", "completed", "failed", "rejected"):
+            break
+        time.sleep(2)
+        poll_req = {
+            "jsonrpc": "2.0",
+            "id": f"poll-{task_id}",
+            "method": "task/execute",
+            "params": {
+                "command": {
+                    "taskId": task_id,
+                    "command": "get",
+                },
+            },
+        }
+        poll_resp = requests.post(agent_url, json=poll_req, timeout=10)
+        result = poll_resp.json().get("result", result)
+
+    # 发送 Complete
+    requests.post(agent_url, json={
+        "jsonrpc": "2.0",
+        "id": f"complete-{task_id}",
+        "method": "task/execute",
+        "params": {"command": {"taskId": task_id, "command": "complete"}},
+    }, timeout=10)
+
+    return result
 
 # 本地默认兜底地址（ADP 返回了就用 ADP 的）
 PARTNERS = {
@@ -17,6 +71,18 @@ PARTNERS = {
 
 # ADP 搜索结果缓存: {agent_name: {"aic": ..., "endpoint": ..., "acs": {...}}}
 _agent_cache = {}
+
+
+def _extract_reply(result: dict) -> str:
+    """从 AIP TaskResult 中提取文本回复"""
+    for prod in result.get("products", []):
+        for item in prod.get("dataItems", []):
+            if item.get("text"):
+                return item["text"]
+    for item in result.get("status", {}).get("dataItems", []):
+        if item.get("text"):
+            return item["text"]
+    return ""
 
 
 class BridgeHandler(BaseHTTPRequestHandler):
@@ -64,23 +130,26 @@ class BridgeHandler(BaseHTTPRequestHandler):
                 self._reply(500, {"error": str(e)})
 
         elif path.startswith("partner/"):
-            # 公网直连入口: POST /partner/北邮校园外卖小助手
+            # 公网直连入口: POST /partner/北邮校园外卖小助手  (AIP JSON-RPC)
             agent_name = path.replace("partner/", "").strip()
             agent_url = PARTNERS.get(agent_name)
             if not agent_url:
                 self._reply(404, {"error": f"未知智能体: {agent_name}"})
                 return
             try:
-                resp = requests.post(agent_url, json=body, timeout=30)
+                msg = body.get("message", "") or (body.get("params", {}).get("command", {}).get("dataItems", [{}])[0].get("text", ""))
+                sid = body.get("session_id", "") or body.get("params", {}).get("command", {}).get("sessionId", "default")
+                result = _aip_request(agent_url, msg, sid, "外部调用", "")
+                reply = _extract_reply(result)
                 print(f"[公网直连] {agent_name} → {agent_url}")
-                self._reply(200, resp.json())
+                self._reply(200, {"reply": reply, "aip_result": result})
             except Exception as e:
                 self._reply(500, {"error": str(e)})
 
         elif path == "call":
             agent_name = body.get("agent", "")
             message = body.get("message", "")
-            session_id = body.get("session_id", "")
+            session_id = body.get("session_id", "default")
 
             # 优先从 ADP 缓存取地址，其次用本地兜底
             cached = _agent_cache.get(agent_name, {})
@@ -91,18 +160,10 @@ class BridgeHandler(BaseHTTPRequestHandler):
 
             try:
                 caller_aic = body.get("caller_aic") or LEADER_AIC
-                resp = requests.post(
-                    agent_url,
-                    json={
-                        "message": message,
-                        "session_id": session_id,
-                        "caller_name": "北邮个人助手",
-                        "caller_aic": caller_aic,
-                    },
-                    timeout=30,
-                )
+                result = _aip_request(agent_url, message, session_id, "北邮个人助手", caller_aic)
+                reply = _extract_reply(result)
                 print(f"[调用] {agent_name} → {agent_url}")
-                self._reply(200, resp.json())
+                self._reply(200, {"reply": reply, "aip_result": result})
             except Exception as e:
                 self._reply(500, {"error": str(e)})
 
