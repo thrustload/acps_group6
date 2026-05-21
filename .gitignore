@@ -36,6 +36,10 @@ _test_*.jpg
 Snipaste_*.png
 bore.tar.gz
 
+# Worktrees / brainstorming artifacts
+.worktrees/
+.superpowers/
+
 # 课件（太大）
 references/
 
