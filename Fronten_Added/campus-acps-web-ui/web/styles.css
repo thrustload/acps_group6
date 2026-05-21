@@ -1,0 +1,358 @@
+:root {
+  --bg: #eef3f8;
+  --panel: #ffffff;
+  --line: #d9e2ef;
+  --text: #17233a;
+  --muted: #627087;
+  --blue: #1f6feb;
+  --green: #16a34a;
+  --amber: #f59e0b;
+  --purple: #7c3aed;
+  --red: #dc2626;
+  font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  overflow-wrap: anywhere;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px minmax(420px, 1fr) 340px;
+  gap: 16px;
+  padding: 16px;
+}
+
+.side-panel,
+.chat-panel,
+.chain-panel {
+  min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.side-panel,
+.chain-panel {
+  padding: 16px;
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.brand > div:last-child {
+  min-width: 0;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--blue);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.brand h1,
+.chat-header h2,
+.chain-panel h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.brand p,
+.chat-header p,
+.chain-panel p,
+.status-box p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.panel-section {
+  margin-top: 22px;
+}
+
+.section-label {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.segment,
+.agent-button,
+.prompt-chip,
+.composer button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbff;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.segment {
+  padding: 10px;
+}
+
+.segment.active,
+.composer button {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #ffffff;
+}
+
+.agent-list {
+  display: grid;
+  gap: 8px;
+}
+
+.agent-button {
+  padding: 11px;
+  text-align: left;
+  border-left: 4px solid var(--agent-color, var(--blue));
+}
+
+.agent-button.active {
+  background: #edf6ff;
+  border-color: var(--agent-color, var(--blue));
+}
+
+.status-box {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.status-online {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.status-offline {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.chat-panel {
+  display: flex;
+  min-height: calc(100vh - 32px);
+  overflow: hidden;
+  flex-direction: column;
+}
+
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.chat-header > div {
+  min-width: 0;
+}
+
+.session-pill {
+  align-self: flex-start;
+  flex: 0 1 auto;
+  max-width: 100%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #f1f5fb;
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.prompt-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+
+.prompt-chip {
+  flex: 0 0 auto;
+  max-width: min(360px, 85vw);
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  overflow-y: auto;
+}
+
+.message {
+  max-width: 82%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.message.user {
+  align-self: flex-start;
+  background: #f1f5fb;
+}
+
+.message.assistant {
+  align-self: flex-end;
+  background: var(--blue);
+  color: #ffffff;
+}
+
+.message.error {
+  align-self: flex-end;
+  background: #fff1f2;
+  color: #991b1b;
+  border: 1px solid #fecdd3;
+}
+
+.composer {
+  display: flex;
+  gap: 10px;
+  padding: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.composer input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.composer button {
+  min-width: 84px;
+  min-height: 44px;
+  padding: 0 16px;
+}
+
+.composer button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.chain-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.chain-item {
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.chain-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.chain-topline span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.chain-status {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.chain-status.done {
+  color: var(--green);
+}
+
+.chain-status.failed {
+  color: var(--red);
+}
+
+.chain-status.warning {
+  color: var(--amber);
+}
+
+.chain-meta {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 1080px) {
+  .app-shell {
+    grid-template-columns: 240px 1fr;
+  }
+
+  .chain-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .chat-panel {
+    min-height: 70vh;
+  }
+
+  .chat-header,
+  .composer {
+    flex-direction: column;
+  }
+
+  .message {
+    max-width: 100%;
+  }
+}

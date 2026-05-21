@@ -1,0 +1,91 @@
+{
+  "aic": "1.2.156.3088.0001.00001.624O0Z.DJA3AQ.1.00OV",
+  "active": true,
+  "lastModifiedTime": "2026-05-21T20:00:00+08:00",
+  "protocolVersion": "02.00",
+  "name": "天气穿搭管家",
+  "description": "天气穿搭管家（Partner）。职责：根据学校、校区、城市或具体地址查询天气信息，并结合实时温度、天气现象、风力、湿度、白天夜间温差等因素，为大学生日常上课、通勤、取快递、外出就餐、骑车步行等校园生活场景提供穿搭建议。能力：支持地点天气查询、今日天气概况生成、温度区间分析、雨雪风力提醒、校园穿搭建议生成。范围：适用于校园内外短途出行、上课、去图书馆、取快递、吃饭等日常场景。明确拒绝：不处理灾害预警专业判断、医疗健康诊断、长途旅行气象规划、户外高风险运动决策。限制：天气数据依赖墨迹天气服务。",
+  "version": "2.0.0",
+  "iconUrl": "",
+  "documentationUrl": "",
+  "webAppUrl": "",
+  "provider": {
+    "countryCode": "CN",
+    "organization": "北京邮电大学",
+    "department": "人工智能学院",
+    "url": "https://ai.bupt.edu.cn",
+    "license": "京ICP备14033833号-1",
+    "name": "第6组",
+    "email": "2023213534@bupt.cn"
+  },
+  "securitySchemes": {
+    "mtls": {
+      "type": "mutualTLS",
+      "description": "智能体间 mTLS 双向认证",
+      "x-caChallengeBaseUrl": "https://myung-elytroid-patrica.ngrok-free.dev/acps-atr-v2"
+    }
+  },
+  "endPoints": [
+    {
+      "url": "https://hesitancy-harddisk-tribesman.ngrok-free.dev/partner/天气穿搭管家",
+      "transport": "JSONRPC",
+      "security": [
+        {
+          "mtls": []
+        }
+      ]
+    }
+  ],
+  "capabilities": {
+    "streaming": false,
+    "notification": false,
+    "messageQueue": []
+  },
+  "defaultInputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "campus-weather.queryWeather",
+      "name": "校园天气查询",
+      "description": "根据学校、校区、城市或具体地址查询当前天气和天气预报，返回天气现象、温度、风向风力、湿度和发布时间。",
+      "version": "1.0.0",
+      "tags": ["天气", "温度", "下雨", "风力", "校园生活"],
+      "examples": [
+        "北邮沙河校区今天什么天气",
+        "今天下雨吗",
+        "北京邮电大学海淀校区现在冷不冷",
+        "今晚温度大概多少"
+      ],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["text/plain", "application/json"]
+    },
+    {
+      "id": "campus-weather.outfitAdvice",
+      "name": "校园穿搭建议",
+      "description": "结合天气、温度、风力、雨雪情况和校园出行场景，生成适合上课、通勤、取快递、外出吃饭等活动的穿搭建议。",
+      "version": "1.0.0",
+      "tags": ["穿搭", "上课", "通勤", "带伞", "保暖"],
+      "examples": [
+        "今天去上课穿什么",
+        "我晚上要出门跟几年没见的发小吃饭，穿什么合适",
+        "今天骑车去教学楼要不要加外套",
+        "下雨天去取快递穿什么鞋"
+      ],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["text/plain", "application/json"]
+    }
+  ],
+  "entityUserId": "",
+  "entityMeta": {
+    "type": "campus-service",
+    "campus": "北京邮电大学",
+    "role": "partner",
+    "domain": "weather"
+  }
+}

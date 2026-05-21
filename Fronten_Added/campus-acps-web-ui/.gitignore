@@ -1,0 +1,53 @@
+# Python
+.venv-claude/
+__pycache__/
+*.pyc
+*.pyo
+
+# CA 证书和密钥（提交到内部 git 可放开注释跟踪）
+# ca/private/
+# ca/csr/
+# ca/certs/
+
+# mTLS 运行时证书（目录结构保留，证书文件不提交）
+mtls/**/*.pem
+mtls/**/*.key
+mtls/**/*.crt
+mtls/**/*.csr
+
+# 外部依赖
+ngrok.exe
+acps_ca_client-*.whl
+*.tar.gz
+*.zip
+
+# 克隆的参考仓库
+ACPs-CA-Challenge/
+ACPs-Demo-Project/
+
+# 提取工具
+script/
+
+# 临时文件
+_agent_create.json
+_openapi_*.json
+_extract_*.py
+_test_*.jpg
+Snipaste_*.png
+bore.tar.gz
+
+# Worktrees / brainstorming artifacts
+.worktrees/
+.superpowers/
+
+# 课件（太大）
+references/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

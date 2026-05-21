@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>北邮个人助手 · Campus ACPs Console</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="side-panel">
+      <div class="brand">
+        <div class="brand-mark">邮</div>
+        <div>
+          <h1>北邮个人助手</h1>
+          <p>Campus ACPs Console</p>
+        </div>
+      </div>
+
+      <section class="panel-section">
+        <div class="section-label">调度模式</div>
+        <div class="segmented" aria-label="调度模式">
+          <button class="segment active" id="mode-auto" data-mode="auto" aria-pressed="true">自动</button>
+          <button class="segment" id="mode-manual" data-mode="manual" aria-pressed="false">手动</button>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <div class="section-label">可调用智能体</div>
+        <div class="agent-list" id="agent-list"></div>
+      </section>
+
+      <section class="panel-section status-box" id="service-status">
+        <div class="section-label">服务状态</div>
+        <p>正在检查本地桥接服务...</p>
+      </section>
+    </aside>
+
+    <main class="chat-panel">
+      <header class="chat-header">
+        <div>
+          <h2>校园生活协同助手</h2>
+          <p>输入一个需求，查看主智能体如何调度 Partner。</p>
+        </div>
+        <span class="session-pill" id="session-pill">session: web-demo</span>
+      </header>
+
+      <div class="prompt-row" id="prompt-row"></div>
+      <div class="messages" id="messages" aria-live="polite"></div>
+
+      <form class="composer" id="chat-form">
+        <input id="message-input" autocomplete="off" aria-label="输入校园生活需求" placeholder="例如：下午去取快递，顺便吃饭，今天穿什么？">
+        <button id="send-button" type="submit">发送</button>
+      </form>
+    </main>
+
+    <aside class="chain-panel">
+      <header>
+        <h2>调用链路</h2>
+        <p>用户请求 → 北邮个人助手 → 子智能体 → 汇总答复</p>
+      </header>
+      <div class="chain-list" id="chain-list"></div>
+    </aside>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

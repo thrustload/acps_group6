@@ -1,0 +1,90 @@
+{
+  "aic": "1.2.156.3088.0001.00001.6MM9IX.WA3H9W.1.168D",
+  "active": true,
+  "lastModifiedTime": "2026-05-21T20:00:00+08:00",
+  "protocolVersion": "02.00",
+  "name": "约会规划师",
+  "description": "校园情侣约会规划师智能体（Partner）。职责：根据学校或校区位置、用户口味偏好、预算、距离约束和可选天气上下文，为大学生推荐校园周边餐厅、或适合特定场景的用餐地点，并且根据时间规划后续约会活动安排（例如吃完饭去就近的电影院看电影，看什么电影等）。能力：支持基于位置检索周边餐饮POI，按川菜、清淡、热食、面食、西餐、日料、约会、高档、有意境等偏好筛选餐厅，结合距离、预算、天气和校园生活场景生成推荐理由。范围：适用于校园周边日常用餐、外卖选择、雨天近距离取餐、约会餐厅筛选等场景。明确拒绝：不处理真实下单支付、退款理赔、商家投诉、食品安全鉴定、酒类购买、校外远距离旅游餐厅规划。限制：餐厅数据主要依赖百度导盲POI搜索。",
+  "version": "2.0.0",
+  "iconUrl": "",
+  "documentationUrl": "",
+  "webAppUrl": "",
+  "provider": {
+    "countryCode": "CN",
+    "organization": "北京邮电大学",
+    "department": "人工智能学院",
+    "url": "https://ai.bupt.edu.cn",
+    "license": "京ICP备14033833号-1",
+    "name": "第6组",
+    "email": "2023213534@bupt.cn"
+  },
+  "securitySchemes": {
+    "mtls": {
+      "type": "mutualTLS",
+      "description": "智能体间 mTLS 双向认证",
+      "x-caChallengeBaseUrl": "https://myung-elytroid-patrica.ngrok-free.dev/acps-atr-v2"
+    }
+  },
+  "endPoints": [
+    {
+      "url": "https://hesitancy-harddisk-tribesman.ngrok-free.dev/partner/约会规划师",
+      "transport": "JSONRPC",
+      "security": [
+        {
+          "mtls": []
+        }
+      ]
+    }
+  ],
+  "capabilities": {
+    "streaming": false,
+    "notification": false,
+    "messageQueue": []
+  },
+  "defaultInputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "campus-restaurant.recommendNearby",
+      "name": "校园周边餐厅推荐",
+      "description": "根据学校、校区或地址检索周边餐厅，并结合用户口味、预算、距离约束和天气上下文生成餐厅推荐。",
+      "version": "1.0.0",
+      "tags": ["餐厅", "约会地点", "吃什么", "周边搜索", "校园生活"],
+      "examples": [
+        "学校附近有什么好吃的",
+        "推荐一下北邮沙河校区和北大燕圆校区之间的适合约会的餐厅",
+        "下雨天推荐个近一点的热食"
+      ],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["text/plain", "application/json"]
+    },
+    {
+      "id": "campus-restaurant.sceneRecommend",
+      "name": "场景化用餐推荐",
+      "description": "根据约会、聚餐、预算充足、想吃热食、想避开学校附近等场景化约束，筛选更符合用户意图的餐厅。",
+      "version": "1.0.0",
+      "tags": ["约会", "活动规划", "预算", "氛围", "场景推荐"],
+      "examples": [
+        "我在北大，想找适合约会的餐厅，预算500块",
+        "不想在学校附近吃，推荐个有意境的地方",
+        "晚上和朋友聚餐，帮我找个氛围好一点的餐厅",
+        "预算250元，我和女朋友想出学校找一家餐厅吃晚饭，然后溜达着去电影院看电影"
+      ],
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["text/plain", "application/json"]
+    }
+  ],
+  "entityUserId": "",
+  "entityMeta": {
+    "type": "campus-service",
+    "campus": "北京邮电大学",
+    "role": "partner",
+    "domain": "date"
+  }
+}
