@@ -31,8 +31,8 @@ class CozeAgent:
         chat_id = data["data"]["id"]
 
         # 2. 轮询获取回复
-        for _ in range(15):
-            time.sleep(2)
+        for _ in range(40):
+            time.sleep(0.3)
             r = requests.get(
                 f"https://api.coze.cn/v3/chat/message/list?conversation_id={cid}&chat_id={chat_id}",
                 headers=headers,

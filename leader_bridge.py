@@ -9,6 +9,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 
 import uuid
 import time
+import threading
 from urllib.parse import unquote
 
 LEADER_AIC = "1.2.156.3088.0001.00001.B08ERU.S4IY32.1.002I"
@@ -69,12 +70,12 @@ def _aip_request(agent_url: str, message: str, session_id: str, caller_name: str
     resp = _post(agent_url, req)
     result = resp.json().get("result", {})
 
-    # 轮询等 Coze 异步返回
-    for _ in range(15):
+    # 轮询等异步返回（0.5s×80=40s，后台慢慢等）
+    for _ in range(80):
         state = result.get("status", {}).get("state", "")
         if state in ("awaiting_completion", "completed", "failed", "rejected"):
             break
-        time.sleep(2)
+        time.sleep(0.5)
         poll_req = {
             "jsonrpc": "2.0",
             "id": f"poll-{task_id}",
@@ -86,7 +87,7 @@ def _aip_request(agent_url: str, message: str, session_id: str, caller_name: str
                 },
             },
         }
-        poll_resp = _post(agent_url, poll_req, 10)
+        poll_resp = _post(agent_url, poll_req, 5)
         result = poll_resp.json().get("result", result)
 
     # 发送 Complete
@@ -99,13 +100,17 @@ def _aip_request(agent_url: str, message: str, session_id: str, caller_name: str
 
     return result
 
-# 本地默认兜底地址（ADP 返回了就用 ADP 的）
-PARTNERS = {
+# 本地 Partner 地址（ADP 返回的 endpoint 指向 bridge 自身时，转成本地直连）
+LOCAL_PARTNERS = {
     "北邮校园外卖小助手": "https://127.0.0.1:8088",
     "快递小助手": "https://127.0.0.1:8089",
     "天气穿搭管家": "https://127.0.0.1:8090",
     "约会规划师": "https://127.0.0.1:8091",
 }
+
+# 异步任务存储: task_id → {"status": "working"|"done", "reply": "...", "aip_result": {...}}
+_task_store = {}
+_task_lock = threading.Lock()
 
 # ADP 搜索结果缓存: {agent_name: {"aic": ..., "endpoint": ..., "acs": {...}}}
 _agent_cache = {}
@@ -131,23 +136,34 @@ class BridgeHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(data, ensure_ascii=False).encode())
 
     def _cache_from_acs_map(self, acs_map):
-        """从 ADP 返回的 acsMap 提取名称→地址的映射"""
+        """从 ADP 返回的 acsMap 提取名称→地址的映射（同名时优先保留自己的 ngrok 地址）"""
         for aic, acs in acs_map.items():
             name = acs.get("name", "")
             endpoints = acs.get("endPoints", [])
             url = endpoints[0]["url"] if endpoints else ""
-            _agent_cache[name] = {
-                "aic": aic,
-                "endpoint": url,
-                "acs": acs,
-            }
+
+            existing = _agent_cache.get(name, {})
+            old_url = existing.get("endpoint", "")
+            # 同名已有缓存且新 URL 不是自己的 ngrok → 跳过（保留旧缓存）
+            if existing and not url.startswith("https://hesitancy-harddisk-tribesman"):
+                continue
+
+            _agent_cache[name] = {"aic": aic, "endpoint": url, "acs": acs}
 
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0))
-        body = json.loads(self.rfile.read(length))
+        raw = self.rfile.read(length)
+        try:
+            body = json.loads(raw) if raw else {}
+        except json.JSONDecodeError:
+            print(f"[JSON解析失败] path={self.path}, raw={raw[:200]}")
+            body = {}
         path = self.path.strip("/")
 
-        if path == "search":
+        if path == "ping":
+            self._reply(200, {"status": "ok"})
+
+        elif path == "search":
             try:
                 resp = requests.post(
                     DISCOVERY_URL,
@@ -170,7 +186,7 @@ class BridgeHandler(BaseHTTPRequestHandler):
         elif path.startswith("partner/"):
             # 公网直连入口: POST /partner/北邮校园外卖小助手  (AIP JSON-RPC)
             agent_name = unquote(path.replace("partner/", "").strip())
-            agent_url = PARTNERS.get(agent_name)
+            agent_url = LOCAL_PARTNERS.get(agent_name)
             if not agent_url:
                 self._reply(404, {"error": f"未知智能体: {agent_name}"})
                 return
@@ -188,22 +204,62 @@ class BridgeHandler(BaseHTTPRequestHandler):
             agent_name = body.get("agent", "")
             message = body.get("message", "")
             session_id = body.get("session_id", "default")
+            print(f"[收到call] agent={agent_name}, message={message[:50] if message else ''}, session={session_id}")
 
-            # 优先从 ADP 缓存取地址，其次用本地兜底
             cached = _agent_cache.get(agent_name, {})
-            agent_url = cached.get("endpoint") or PARTNERS.get(agent_name)
+            agent_url = cached.get("endpoint", "")
+            if not agent_url or "hesitancy-harddisk-tribesman.ngrok-free.dev" in agent_url:
+                agent_url = LOCAL_PARTNERS.get(agent_name, "")
             if not agent_url:
                 self._reply(404, {"error": f"未知智能体: {agent_name}", "cached": list(_agent_cache.keys())})
                 return
 
-            try:
-                caller_aic = body.get("caller_aic") or LEADER_AIC
-                result = _aip_request(agent_url, message, session_id, "北邮个人助手", caller_aic)
-                reply = _extract_reply(result)
-                print(f"[调用] {agent_name} → {agent_url}")
-                self._reply(200, {"reply": reply, "aip_result": result})
-            except Exception as e:
-                self._reply(500, {"error": str(e)})
+            task_id = uuid.uuid4().hex[:8]
+            caller_aic = body.get("caller_aic") or LEADER_AIC
+            dst_aic = cached.get("aic", "")
+
+            with _task_lock:
+                _task_store[task_id] = {"status": "working", "reply": "", "aip_result": None}
+
+            def _do_call():
+                try:
+                    try:
+                        requests.post(FOOTPRINT_URL, json={
+                            "AgentName_src": "北邮个人助手", "src_AIC": caller_aic,
+                            "AgentName_dist": agent_name, "dest_AIC": dst_aic,
+                        }, timeout=5)
+                    except Exception:
+                        pass
+                    result = _aip_request(agent_url, message, session_id, "北邮个人助手", caller_aic)
+                    reply = _extract_reply(result)
+                    state = result.get("status", {}).get("state", "?")
+                    prods = result.get("products", [])
+                    print(f"[调用完成] {agent_name} state={state} products={len(prods)} reply_len={len(reply)}")
+                    with _task_lock:
+                        _task_store[task_id] = {"status": "done", "reply": reply, "aip_result": result}
+                except Exception as e:
+                    import traceback
+                    print(f"[调用失败] {agent_name} → {agent_url}, error={e}")
+                    traceback.print_exc()
+                    with _task_lock:
+                        _task_store[task_id] = {"status": "error", "reply": str(e), "aip_result": None}
+
+            threading.Thread(target=_do_call, daemon=True).start()
+            self._reply(200, {"task_id": task_id, "status": "started", "message": "任务已启动，请轮询 /poll 获取结果"})
+
+        elif path == "poll":
+            task_id = body.get("task_id", "")
+            with _task_lock:
+                task = _task_store.get(task_id)
+            if not task:
+                self._reply(404, {"error": "任务不存在", "task_id": task_id})
+                return
+            self._reply(200, {
+                "task_id": task_id,
+                "status": task["status"],
+                "reply": task["reply"],
+                "aip_result": task.get("aip_result"),
+            })
 
         elif path == "footprint":
             try:
@@ -227,17 +283,18 @@ class BridgeHandler(BaseHTTPRequestHandler):
             self._reply(200, {
                 "status": "running",
                 "cached_agents": list(_agent_cache.keys()),
-                "fallback_agents": list(PARTNERS.keys()),
             })
 
         else:
             self._reply(404, {"error": "not found"})
 
     def do_GET(self):
+        if self.path.strip("/") == "ping":
+            self._reply(200, {"status": "ok"})
+            return
         self._reply(200, {
             "status": "running",
             "cached_agents": list(_agent_cache.keys()),
-            "fallback_agents": list(PARTNERS.keys()),
         })
 
     def log_message(self, format, *args):

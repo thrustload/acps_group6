@@ -10,6 +10,7 @@ from aip_models import (
     TextDataItem, now_iso,
 )
 
+logging.basicConfig(level=logging.INFO, format="[%(name)s] %(message)s")
 logger = logging.getLogger("aip_server")
 
 

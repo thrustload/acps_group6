@@ -9,7 +9,7 @@ from aip_server import create_aip_server
 AGENT_NAME = "快递小助手"
 AGENT_AIC = "1.2.156.3088.0001.00001.F4IQJP.MXLG0N.1.0NW2"
 COZE_BOT_ID = "7637790749019095090"
-COZE_TOKEN = "pat_QFIYhVSzqaADjDxOYysNBdyhpmhzSQ8hIEWIIPQHQtjPpiYBxHkOVOptyuoi7OX"
+COZE_TOKEN = "pat_C7b05coaD1kwuXD2LHhVCw2ooNwVP0dSTXHDjRFMdcp6II2J3Xnkid6tj6zbr45j"
 DISPLAY_URL = "http://117.74.66.90:8006/notify"
 CERT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ca")
 
