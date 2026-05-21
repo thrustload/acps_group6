@@ -9,7 +9,7 @@ from aip_server import create_aip_server
 AGENT_NAME = "约会规划师"
 AGENT_AIC = "1.2.156.3088.0001.00001.6MM9IX.WA3H9W.1.168D"
 COZE_BOT_ID = "7641605520465379391"
-COZE_TOKEN = "cztei_l9Rol4fVm6jR7rTdfaRLp6tu2VfnyNM6Gjc71s8Cc46xme0j4IkiTnrWn3xMSPWfI"
+COZE_TOKEN = "pat_QFIYhVSzqaADjDxOYysNBdyhpmhzSQ8hIEWIIPQHQtjPpiYBxHkOVOptyuoi7OX"
 DISPLAY_URL = "http://117.74.66.90:8006/notify"
 CERT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ca")
 
