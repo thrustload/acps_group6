@@ -1,11 +1,11 @@
 {
-  "aic": "1.2.156.3088.0001.00001.A53M96.AXQY6W.1.1AZ7",
-  "lastModifiedTime": "2026-05-20T20:00:00+08:00",
+  "aic": "",
   "active": true,
+  "lastModifiedTime": "2026-05-21T20:00:00+08:00",
   "protocolVersion": "02.00",
   "name": "北邮个人助手",
   "description": "北邮个人助手（Leader）。职责：作为Leader智能体，分析学生的日常校园需求，将任务分解并路由到合适的校园Partner智能体（外卖订餐、快递查询、天气穿搭、约会规划），协调多智能体协作完成任务，并向态势大屏上报调用链路。能力：支持自然语言理解、意图分析、任务分解、多Partner协调和结果整合。范围：校园生活场景（订餐、快递、天气、约会）。明确拒绝：校外服务、金融服务、医疗咨询。",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "iconUrl": "",
   "documentationUrl": "",
   "webAppUrl": "https://www.coze.cn/store/agent/7641873438327783460?bot_id=true",
@@ -14,7 +14,7 @@
     "organization": "北京邮电大学",
     "department": "人工智能学院",
     "url": "https://ai.bupt.edu.cn",
-    "license": "",
+    "license": "京ICP备14033833号-1",
     "name": "第6组",
     "email": "2023213534@bupt.cn"
   },

@@ -5,6 +5,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 
 import uuid
 import time
+from urllib.parse import unquote
 
 LEADER_AIC = "1.2.156.3088.0001.00001.A53M96.AXQY6W.1.1AZ7"
 DISCOVERY_URL = "http://117.74.66.90:8005/acps-adp-v2/discover"
@@ -131,7 +132,7 @@ class BridgeHandler(BaseHTTPRequestHandler):
 
         elif path.startswith("partner/"):
             # 公网直连入口: POST /partner/北邮校园外卖小助手  (AIP JSON-RPC)
-            agent_name = path.replace("partner/", "").strip()
+            agent_name = unquote(path.replace("partner/", "").strip())
             agent_url = PARTNERS.get(agent_name)
             if not agent_url:
                 self._reply(404, {"error": f"未知智能体: {agent_name}"})

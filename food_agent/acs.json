@@ -1,11 +1,11 @@
 {
-  "aic": "1.2.156.3088.0001.00001.4UBXND.RABBX9.1.0ITQ",
-  "lastModifiedTime": "2026-05-19T20:00:00+08:00",
+  "aic": "",
   "active": true,
+  "lastModifiedTime": "2026-05-21T20:00:00+08:00",
   "protocolVersion": "02.00",
   "name": "北邮校园外卖小助手",
   "description": "北京邮电大学北邮校园外卖小助手（Partner）。职责：为北邮校园内师生提供食堂菜品查询、外卖订餐下单、配送状态追踪服务。能力：支持按食堂筛选菜单、创建外卖订单、查询配送进度、获取可配送地址列表。范围：仅限校园内配送，覆盖学生食堂、教学楼、实验室、图书馆等楼栋。明确拒绝：校外地址配送、校外餐厅订餐、支付退款处理、非餐饮类商品订购。混合请求时保留可执行部分并说明拒绝项。",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "iconUrl": "",
   "documentationUrl": "",
   "webAppUrl": "",
@@ -14,7 +14,7 @@
     "organization": "北京邮电大学",
     "department": "人工智能学院",
     "url": "https://ai.bupt.edu.cn",
-    "license": "",
+    "license": "京ICP备14033833号-1",
     "name": "第6组",
     "email": "2023213534@bupt.cn"
   },
@@ -55,100 +55,60 @@
       "name": "校园食堂菜单查询",
       "description": "查询校园食堂菜单，支持按食堂名称筛选。返回菜品id、名称、价格、所属食堂。",
       "version": "1.0.0",
-      "tags": [
-        "菜单",
-        "菜品",
-        "食堂",
-        "吃什么",
-        "点餐"
-      ],
+      "tags": ["菜单", "菜品", "食堂", "吃什么", "点餐"],
       "examples": [
         "有什么好吃的",
         "一食堂有什么菜",
         "帮我看看食堂菜单"
       ],
-      "inputModes": [
-        "text/plain",
-        "application/json"
-      ],
-      "outputModes": [
-        "application/json"
-      ]
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["application/json"]
     },
     {
       "id": "campus-food.createOrder",
       "name": "外卖订餐下单",
       "description": "创建外卖配送订单。需要菜品ID、数量、地址、电话。返回订单号和订单详情。",
       "version": "1.0.0",
-      "tags": [
-        "下单",
-        "订餐",
-        "外卖",
-        "配送",
-        "点饭"
-      ],
+      "tags": ["下单", "订餐", "外卖", "配送", "点饭"],
       "examples": [
         "帮我点一份红烧肉饭送到学三楼",
         "我要下单，牛肉面一份送到实验室"
       ],
-      "inputModes": [
-        "text/plain",
-        "application/json"
-      ],
-      "outputModes": [
-        "application/json"
-      ]
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["application/json"]
     },
     {
       "id": "campus-food.getOrder",
       "name": "订单配送追踪",
       "description": "根据订单号查询配送进度和预计送达时间。",
       "version": "1.0.0",
-      "tags": [
-        "查单",
-        "配送状态",
-        "到哪了",
-        "进度"
-      ],
+      "tags": ["查单", "配送状态", "到哪了", "进度"],
       "examples": [
         "我的外卖到哪了",
         "查一下订单ODxxx的状态"
       ],
-      "inputModes": [
-        "text/plain",
-        "application/json"
-      ],
-      "outputModes": [
-        "application/json"
-      ]
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["application/json"]
     },
     {
       "id": "campus-food.getCampusAddresses",
       "name": "校园地址查询",
       "description": "获取校园可配送地址列表，包括宿舍楼、教学楼、实验室等。",
       "version": "1.0.0",
-      "tags": [
-        "地址",
-        "送到哪",
-        "宿舍",
-        "教学楼"
-      ],
+      "tags": ["地址", "送到哪", "宿舍", "教学楼"],
       "examples": [
         "能送到哪些地方",
         "有哪些地址可以选"
       ],
-      "inputModes": [
-        "text/plain",
-        "application/json"
-      ],
-      "outputModes": [
-        "application/json"
-      ]
+      "inputModes": ["text/plain", "application/json"],
+      "outputModes": ["application/json"]
     }
   ],
   "entityUserId": "",
   "entityMeta": {
     "type": "campus-service",
-    "campus": "北京邮电大学"
+    "campus": "北京邮电大学",
+    "role": "partner",
+    "domain": "food"
   }
 }
